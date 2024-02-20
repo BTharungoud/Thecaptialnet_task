@@ -13,8 +13,10 @@ const Careerpage = () => {
   const [jobprofiles, setJobprofiles] = useState([]);
   const navigate = useNavigate();
   useEffect(() => {
-    const usermail = sessionStorage.email  
-    fetchData(usermail);
+    const usermail = sessionStorage.email
+    if(usermail){
+      fetchData(usermail);
+    }
     if(popup === false){
       JobprofileFetch();
     }
@@ -43,9 +45,11 @@ const Careerpage = () => {
     setJobId(id);
     console.log(userprofiledata);
     let msgs = "";
-    for (let key in userprofiledata[0]) {
-      if (key !== "additionalfiles" && userprofiledata[0][key].length == 0) {
-        msgs = msgs + key + ", ";
+    if(userprofiledata && userprofiledata[0]){
+      for (let key in userprofiledata[0]) {
+        if (key !== "additionalfiles" && userprofiledata[0][key].length == 0) {
+          msgs = msgs + key + ", ";
+        }
       }
     }
     console.log(msgs);
@@ -171,7 +175,7 @@ const Careerpage = () => {
                         justifyContent: "flex-end",
                       }}
                     >
-                      {(profile.applicants.length>0&&profile.applicants.map((ele)=>{if(ele.email == userprofiledata[0].email)return true;else return false}))?"Applied with profile":
+                      {(profile.applicants.length>0&&userprofiledata[0]&&profile.applicants.map((ele)=>{if(ele.email == userprofiledata[0].email)return true;else return false}))?"Applied with profile":
                         <button
                           onClick={() => {
                             setPopup(true);
@@ -243,15 +247,15 @@ const Careerpage = () => {
                         <div style={{ width: "100%" }}>
                           Review Application:-
                           <br />
-                          Name:-<span>{userprofiledata[0].fullname}</span>
+                          Name:-<span>{userprofiledata[0]&&userprofiledata[0].fullname}</span>
                           <br />
-                          Email:-<span>{userprofiledata[0].email}</span>
+                          Email:-<span>{userprofiledata[0]&&userprofiledata[0].email}</span>
                           <br />
-                          Dateofbirth:-<span>{userprofiledata[0].dob}</span>
+                          Dateofbirth:-<span>{userprofiledata[0]&&userprofiledata[0].dob}</span>
                           <br />
-                          Phone:-<span>{userprofiledata[0].phone}</span>
+                          Phone:-<span>{userprofiledata[0]&&userprofiledata[0].phone}</span>
                           <br />
-                          description:-<span>{userprofiledata[0].description}</span>
+                          description:-<span>{userprofiledata[0]&&userprofiledata[0].description}</span>
                           <br />
                           <div
                             style={{
