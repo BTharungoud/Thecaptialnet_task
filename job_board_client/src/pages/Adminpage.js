@@ -1,22 +1,46 @@
 import React, { useEffect, useState } from "react";
-import { useToast } from "@chakra-ui/react";
+import { Button, useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
+import CustomTextField from "../components/CustomTextField";
+import { useForm } from "react-hook-form";
 
 export default function Adminpage() {
     const [search, setSearch] = useState("");
     const [expand, setExpand] = useState("");
     const [popup, setPopup] = useState(false);
+    const [jobpost, setJobpost] = useState(false);
     const [viewApplicant, setviewApplicant] = useState([]);
     const navigate = useNavigate();
     const toast = useToast();
     const [jobprofiles, setJobprofiles] = useState([]);
-
+    const {
+        control,
+        handleSubmit,
+        formState : {errors}
+    }= useForm()
 
     useEffect(() => {
         JobprofileFetch();
     }, [])
 
-    async function handleLogout(){
+     async function addnewJob(data){
+        const result = await fetch("https://job-board-server-eo10.onrender.com/jobprofile/new",
+        {method:"POST",
+        headers:{
+            "Content-type" : "application/json",
+        },body: JSON.stringify(data)
+        })
+        const responseonJobpost = await result.json();
+        if(result.status === 201){
+            JobprofileFetch();
+            toast({title: `Added new post of ${responseonJobpost.jobtitle} position.` });
+            setJobpost(false)
+        }else{
+            toast({title:'Something went wrong'})
+        }
+        return
+    }
+    function handleLogout(){
         const adminlogout = window.confirm("Are you sure, you want to logout?");
         if (adminlogout){
             toast({title:'Logging out.'});
@@ -50,34 +74,122 @@ export default function Adminpage() {
                 alignItems: "center",
                 flexDirection: "column",
                 width: "100%",
-                overflow: "hidden",
+                height:"100vh",
             }}
         >
             <div
                 style={{
                     display: "flex",
                     alignItems: "center",
-                    width: "80%",
+                    width: "90%",
                     padding: "1%",
                 }}
             >
                 <span onClick={() =>
                     handleLogout()   
                 } style={{ backgroundColor: "#61dafb", borderRadius: '10px', padding: '1%',cursor:'pointer' }}>Logout</span>
-                &nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;
                 <label>Search:</label> &nbsp;
                 <input
                     placeholder="Filter by JobTitle"
                     type="text"
                     style={{
                         padding: "1%",
-                        width: "80%",
+                        width: "70%",
                         borderRadius: "10px",
                         color: "black",
                     }}
                     onChange={(e) => setSearch(e.target.value)}
                 />
+                &nbsp;&nbsp;
+                <span onClick={() =>
+                     setJobpost(true)
+                } style={{ backgroundColor: "#61dafb", borderRadius: '10px', padding: '1%',cursor:'pointer' }}>Add Jobpost</span>
             </div>
+            {jobpost && jobpost === true && 
+            <div
+            style={{
+                display:'flex',
+                flexDirection:'column',
+                marginTop:'1%',
+                zIndex:'5',
+                position:"fixed",
+                width:'80%',
+                alignSelf:'center',
+                backgroundColor:'ThreeDDarkShadow',
+                borderRadius:'10px',
+                boxShadow: 'rgba(0, 0, 0, 0.35) 0px 5px 15px',
+                height:'95%'
+            }}
+            >
+                <div style={{display:'flex',justifyContent:"space-between",padding:'1%',}}>
+                    <span>
+                        TO ADD NEW JOB FILL THE FORM.
+                    </span>
+                    <span onClick={()=>setJobpost(false)} style={{color:'red',border:'3px solid red',borderRadius:"50%",padding:'1%'}}>X</span>
+                    </div>
+                    <div style={{display:"flex",flexDirection:'column',width:'70%',padding:'1%',alignSelf:"center",overflowY:"scroll",scrollbarWidth:"thin"}}>
+                        <CustomTextField 
+                        name='jobtitle'
+                        label="Job Title"
+                        control={control}
+                        error={errors}
+                        rules={{required:"Job title required"}}
+                        type="String"
+                        />
+                        <CustomTextField 
+                        name='salary'
+                        label="Salary range"
+                        control={control}
+                        error={errors}
+                        rules={{required:"Salary range required"}}
+                        type="String"
+                        />
+                        <CustomTextField 
+                        name='experience'
+                        label="Expecting Experience"
+                        control={control}
+                        error={errors}
+                        rules={{required:"Experience required if 0 exp mention freshers"}}
+                        type="String"
+                        />
+                        <CustomTextField 
+                        name='openings'
+                        label=" No.of Openings"
+                        control={control}
+                        error={errors}
+                        rules={{required:"Openings required"}}
+                        type="number"
+                        />
+                        <CustomTextField 
+                        name='education'
+                        label="Education qualification."
+                        control={control}
+                        error={errors}
+                        rules={{required:"education qualification required"}}
+                        type="String"
+                        />
+                        <CustomTextField 
+                        name='jobdescripition'
+                        label="Role Descripition"
+                        control={control}
+                        error={errors}
+                        rules={{required:"jobdescripition required"}}
+                        type="String"
+                        />
+                        <CustomTextField 
+                        name='responsibilities'
+                        label="Role and Responsibilities"
+                        control={control}
+                        error={errors}
+                        rules={{required:"role&responsibilities required"}}
+                        type="String"
+                        />
+                        <Button style={{width:'200px',padding:'1%',backgroundColor:'#61dafb'}} onClick={handleSubmit(addnewJob)}>ADD POST</Button>
+                        </div>
+
+                </div>
+            }
             <div
                 style={{
                     display: "flex",
@@ -85,6 +197,7 @@ export default function Adminpage() {
                     alignSelf: "center",
                     width: "90%",
                     gap: "5px",
+                    overflowY:((popup || jobpost)?"hidden":"scroll")
                 }}
             >
                 {jobprofiles.length > 0 &&
@@ -197,7 +310,7 @@ export default function Adminpage() {
                                             Applicants
                                         </h5>
                                         <h3
-                                            style={{ border: "2px solid red", color: "red" }}
+                                            style={{ border: "3px solid red", color: "red",borderRadius:"50%" }}
                                             onClick={() => setPopup(false)}
                                         >
                                             X
