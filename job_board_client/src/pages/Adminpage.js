@@ -3,8 +3,10 @@ import { Button, useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import CustomTextField from "../components/CustomTextField";
 import { useForm } from "react-hook-form";
+import { useAuth } from "../context/AuthContext";
 
 export default function Adminpage() {
+    const {setIsLogin} = useAuth()
     const [search, setSearch] = useState("");
     const [expand, setExpand] = useState("");
     const [popup, setPopup] = useState(false);
@@ -45,6 +47,7 @@ export default function Adminpage() {
         if (adminlogout){
             toast({title:'Logging out.'});
             sessionStorage.clear();
+            setIsLogin(false)
             navigate("/");
         }else{
             toast({title:"Logout rejected"});
