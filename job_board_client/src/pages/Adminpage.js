@@ -1,18 +1,32 @@
 import React, { useEffect, useState } from "react";
 import { useToast } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
 
 export default function Adminpage() {
     const [search, setSearch] = useState("");
     const [expand, setExpand] = useState("");
     const [popup, setPopup] = useState(false);
     const [viewApplicant, setviewApplicant] = useState([]);
-    // const [resumelink, setResumelink] = useState("")
+    const navigate = useNavigate();
     const toast = useToast();
     const [jobprofiles, setJobprofiles] = useState([]);
+
 
     useEffect(() => {
         JobprofileFetch();
     }, [])
+
+    async function handleLogout(){
+        const adminlogout = window.confirm("Are you sure, you want to logout?");
+        if (adminlogout){
+            toast({title:'Logging out.'});
+            sessionStorage.clear();
+            navigate("/");
+        }else{
+            toast({title:"Logout rejected"});
+        }
+
+    }
     const JobprofileFetch = async () => {
         const fetchData = await fetch(
             "https://job-board-server-eo10.onrender.com/jobprofile"
@@ -25,7 +39,7 @@ export default function Adminpage() {
         if (newTab) {
             newTab.focus();
         } else {
-            toast({title:'Failed to open a new tab. Please allow pop-ups and try again.'})
+            toast({ title: 'Failed to open a new tab. Please allow pop-ups and try again.' })
             console.error('Failed to open a new tab. Please allow pop-ups and try again.');
         }
     }
@@ -47,7 +61,11 @@ export default function Adminpage() {
                     padding: "1%",
                 }}
             >
-                <label>Search:</label> &nbsp;{" "}
+                <span onClick={() =>
+                    handleLogout()   
+                } style={{ backgroundColor: "#61dafb", borderRadius: '10px', padding: '1%',cursor:'pointer' }}>Logout</span>
+                &nbsp;&nbsp;&nbsp;
+                <label>Search:</label> &nbsp;
                 <input
                     placeholder="Filter by JobTitle"
                     type="text"
